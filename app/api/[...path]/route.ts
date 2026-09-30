@@ -20,7 +20,7 @@ async function mutate(request: Request, context: { params: Promise<{ path: strin
     const body = request.method === 'POST' ? await request.text() : undefined;
     if (body && body.length > 16384) return Response.json({ error: 'Request too large.' }, { status: 400 });
     const result = await fetch(new URL(`/${path.map(encodeURIComponent).join('/')}`, backendUrl()), {
-      method: request.method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      method: request.method, headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': request.headers.get('x-forwarded-for') || '127.0.0.1', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body, cache: 'no-store', signal: AbortSignal.timeout(10000),
     });
     const data = await result.json();
