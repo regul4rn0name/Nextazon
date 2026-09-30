@@ -1,0 +1,35 @@
+name: nextazon
+services:
+  frontend:
+    build: ..
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:3002
+      WS_URL: /api/realtime
+    ports:
+      - "127.0.0.1:3100:3000"
+    mem_limit: 768m
+    depends_on:
+      backend:
+        condition: service_healthy
+  backend:
+    build: ../../nextazonbackend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_DB: nextazon_app_prod
+    ports:
+      - "127.0.0.1:3102:3002"
+    mem_limit: 768m
+    networks:
+      - default
+      - database
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3002/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+networks:
+  database:
+    external: true
+    name: docker-db_default

@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nextazon
 
-## Getting Started
+Next.js marketplace with an Express/MongoDB backend. All reusable UI components
+live in `app/components`; server-side HTTP and query helpers live in `app/lib`.
 
-First, run the development server:
+## Run
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+In `../nextazonjs`, configure `.env` with `MONGO_URI`, then run `pnpm seed` and
+`pnpm start`. In this project, optionally set `BACKEND_URL` in `.env.local`
+(default `http://127.0.0.1:3002`) and run `pnpm dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Pages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/`: browse and filter listings.
+- `/wishlist`: saved listings for this browser profile.
+- `/my-listings`: listings created by this browser profile.
+- `/listings/new`: create a database listing from the item catalog.
+- `/listings/[id]`: item details, save/unsave, seller link, and owner-only removal.
+- `/sellers/[id]`: listings from one seller, with the same filters.
+- Custom loading, error, and not-found states handle unavailable services/pages.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Search, category, online-only, minimum/maximum Bells, sorting, and pagination are
+server-side. Their values live in the URL. Applying filters resets pagination;
+pagination and category links preserve the remaining filters. Category counts
+reflect the current search/price/availability/scope, before category selection.
 
-## Learn More
+## Accounts and sign-in prompts
 
-To learn more about Next.js, take a look at the following resources:
+Wishlist, Chat (`/messages`), My Listings, and Create Listing show a sign-in /
+create-account prompt for visitors. The header includes a right-side Sign in
+button and a Chat link. Item hearts send visitors to login, preserving the URL.
+`/login` and `/register` return users to a validated local destination.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Auth writes go through Next.js `/api/auth/...`. Passwords are scrypt-hashed in
+MongoDB; random sessions use an HttpOnly, SameSite cookie (Secure on HTTPS),
+with only token hashes stored server-side. Logout invalidates the session.
+Guest sessions no longer grant access to account-only features. Existing guest
+wishlists/listings migrate when the visitor signs in or registers. Wishlists
+belong to the account and work across signed-in browser sessions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Chat currently has a sign-in gate and an account-only placeholder; sending
+messages is not implemented. Email verification and password recovery are not
+implemented. Login/registration have a basic single-process rate limit.
 
-## Deploy on Vercel
+## Checks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `pnpm lint`
+- `pnpm exec next build --webpack` (includes TypeScript checks)
+- Backend: `pnpm test` (MongoDB integration uses a unique temporary test database)
