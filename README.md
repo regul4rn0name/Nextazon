@@ -1,5 +1,5 @@
 # Nextazon
-
+# Vibe Coded AF (will refactor later)
 Next.js marketplace with an Express/MongoDB backend. All reusable UI components
 live in `app/components`; server-side HTTP and query helpers live in `app/lib`.
 
