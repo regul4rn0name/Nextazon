@@ -4,8 +4,13 @@ services:
     build: ..
     restart: unless-stopped
     environment:
+      NODE_OPTIONS: --use-openssl-ca
+      SSL_CERT_FILE: /run/host-ca/ca-certificates.crt
+      SSL_CERT_DIR: /run/host-ca
       BACKEND_URL: http://backend:3002
       WS_URL: /api/realtime
+    volumes:
+      - /etc/ssl/certs:/run/host-ca:ro
     ports:
       - "127.0.0.1:3100:3000"
     mem_limit: 768m
@@ -17,7 +22,12 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      NODE_OPTIONS: --use-openssl-ca
+      SSL_CERT_FILE: /run/host-ca/ca-certificates.crt
+      SSL_CERT_DIR: /run/host-ca
       MONGO_DB: nextazon_app_prod
+    volumes:
+      - /etc/ssl/certs:/run/host-ca:ro
     ports:
       - "127.0.0.1:3102:3002"
     mem_limit: 768m
